@@ -179,7 +179,10 @@ public class Recycleadapter extends RecyclerView.Adapter<Recycleadapter.viewhold
         holder.productdetailss.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                con.startActivity(new Intent(con , Productdetails.class));
+                Intent myintent=new Intent(con , Productdetails.class);
+                myintent.putExtra("barnum",mylist.get(position).numbermyproduct);
+                con.startActivity(myintent);
+
 
 
             }

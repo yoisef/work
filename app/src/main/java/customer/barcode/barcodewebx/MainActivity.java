@@ -411,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                     Retrofit retrofitt = new Retrofit.Builder()
-                            .baseUrl("https://api.barcodelookup.com/v2/")
+                            .baseUrl("https://www.werpx.net/api/v1/")
                             .addConverterFactory(GsonConverterFactory.create())
                             .client(builderr.build())
                             .build();
