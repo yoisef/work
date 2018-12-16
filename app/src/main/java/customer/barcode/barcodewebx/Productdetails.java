@@ -1,7 +1,9 @@
 package customer.barcode.barcodewebx;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -36,6 +38,9 @@ public class Productdetails extends AppCompatActivity {
     DatabaseReference myRef;
     Call<Productroot> mycall;
     ProgressBar myprogressbar;
+    SharedPreferences prefs;
+    String usertok;
+
 
 
     @Override
@@ -44,6 +49,9 @@ public class Productdetails extends AppCompatActivity {
         setContentView(R.layout.activity_productdetails);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // Write a message to the database
+
+        prefs=getSharedPreferences("logintoken", Context.MODE_PRIVATE);
+        usertok=prefs.getString("token","jhjhjh");
         productimagee=findViewById(R.id.imgp);
         productdescription=findViewById(R.id.desp);
         productionname=findViewById(R.id.namp);
@@ -70,7 +78,7 @@ public class Productdetails extends AppCompatActivity {
         productdescription.setText(null);
         productionname.setText(null);
         final Endpoints myendpoints = retrofitt.create(Endpoints.class);
-        mycall = myendpoints.addbarcode(mynumbar);
+        mycall = myendpoints.addbarcode("Bearer "+usertok,mynumbar);
         mycall.enqueue(new Callback<Productroot>() {
             @Override
             public void onResponse(Call<Productroot> call, Response<Productroot> response) {

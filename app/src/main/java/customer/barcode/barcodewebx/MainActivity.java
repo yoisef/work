@@ -1,8 +1,10 @@
 package customer.barcode.barcodewebx;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +19,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -68,15 +73,19 @@ public class MainActivity extends AppCompatActivity {
     private Float total;
     private List<String> allprices;
 
+    SharedPreferences prefs ;
+    String usertok;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        prefs=getSharedPreferences("logintoken", Context.MODE_PRIVATE);
+        usertok=prefs.getString("token","jhjhjh");
         dbList = new ArrayList<>();
-        /**
-         *
-         */
+
 
         FirebaseApp.initializeApp(this);
 
@@ -206,7 +215,10 @@ public class MainActivity extends AppCompatActivity {
 
                         final Endpoints myendpoints = retrofitt.create(Endpoints.class);
 
-                        mcall = myendpoints.addbarcode(myedit.getText().toString());
+
+
+
+                        mcall = myendpoints.addbarcode("Bearer "+usertok,myedit.getText().toString());
                         mcall.enqueue(new Callback<Productroot>() {
                             @Override
                             public void onResponse(Call<Productroot> call, Response<Productroot> response) {
@@ -273,6 +285,30 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+
+            case R.id.logoutt:{
+
+                prefs.edit().clear().apply();
+                startActivity(new Intent(MainActivity.this,Login_activity.class));
+                finish();
+
+
+            }
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -395,9 +431,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Call<Productroot> mycall;
 
-        if (requestCode == 0) {
+
+
+            if (requestCode == 0) {
             if (resultCode == CommonStatusCodes.SUCCESS) {
                 if (data != null) {
                     final String barcodedata = String.valueOf(data.getStringExtra("open"));
@@ -418,19 +455,29 @@ public class MainActivity extends AppCompatActivity {
 
                     final Endpoints myendpoints = retrofitt.create(Endpoints.class);
 
-                    mycall = myendpoints.addbarcode(barcodedata);
-                    mycall.enqueue(new Callback<Productroot>() {
+                    mcall = myendpoints.addbarcode("Bearer "+usertok,barcodedata);
+                    mcall.enqueue(new Callback<Productroot>() {
                         @Override
                         public void onResponse(Call<Productroot> call, Response<Productroot> response) {
 
                             if (response.isSuccessful()) {
-                                String numberbarcode = response.body().getProduct().getBarcode();
-                                String nameproduct=response.body().getProduct().getName();
-                                String description=response.body().getProduct().getDescription();
-                                String urlimage=response.body().getProduct().getImage().getUrl();
-                                String price=response.body().getProduct().getPrice();
-                                mymodel = new productmodel(nameproduct, numberbarcode, description, urlimage, null, null,price);
-                                myRef.push().setValue(mymodel);
+                                if (response.body().getProduct()!=null)
+                                {
+                                    String numberbarcode = response.body().getProduct().getBarcode();
+                                    String nameproduct=response.body().getProduct().getName();
+                                    String description=response.body().getProduct().getDescription();
+                                    String urlimage=response.body().getProduct().getImage().getUrl();
+                                    String price=response.body().getProduct().getPrice();
+                                    mymodel = new productmodel(nameproduct, numberbarcode, description, urlimage, null, null,price);
+                                    myRef.push().setValue(mymodel);
+                                }
+                                else
+                                {
+                                    Toast.makeText(MainActivity.this,"Not Record in Database",Toast.LENGTH_LONG).show();
+                                    mymodel = new productmodel(null, null, null, null, null, null,null);
+                                    myRef.push().setValue(mymodel);
+
+                                }
 
                             } else {
                                 mymodel = new productmodel(null, barcodedata, null, null, null, null,null);

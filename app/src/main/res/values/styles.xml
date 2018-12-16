@@ -12,6 +12,7 @@
 
         <item name="contentInsetStart">0dp</item>
         <item name="contentInsetEnd">0dp</item>
+        <item name="android:colorPrimary">@color/gray</item>
         <item name="colorAccent">@color/black</item>
     </style>
 
@@ -26,6 +27,12 @@
         <!-- inactive track color (30% transparency) -->
         <item name="android:colorForeground">@color/gray
         </item>
+    </style>
+    <style name="Customlogin" parent="Theme.AppCompat.Light.NoActionBar">
+
+        <item name="contentInsetStart">0dp</item>
+        <item name="contentInsetEnd">0dp</item>
+        <item name="colorAccent">@color/blue</item>
     </style>
 
 
